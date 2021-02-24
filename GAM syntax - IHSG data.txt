@@ -1,0 +1,46 @@
+ihsg <- read.csv("C:/Users/Ardya Novi/OneDrive/Documents/Back up ID & Doc/MMT Business Analytics/Predictive Analytics & Machine Learning/PAML - IHSG.csv")
+
+#graph
+par(mfrow=c(2,4))
+plot(ihsg$crude_oil,ihsg$ihsg)
+plot(ihsg$coal,ihsg$ihsg)
+plot(ihsg$coffee,ihsg$ihsg)
+plot(ihsg$cpo,ihsg$ihsg)
+plot(ihsg$rubber,ihsg$ihsg)
+plot(ihsg$gold,ihsg$ihsg)
+plot(ihsg$ex_rate,ihsg$ihsg)
+plot(ihsg$inflasi,ihsg$ihsg)
+
+#linearity test
+library(lmtest)
+resettest(ihsg$ihsg~ihsg$crude_oil, power=2, trype="regressor")
+resettest(ihsg$ihsg~ihsg$coal, power=2, trype="regressor")
+resettest(ihsg$ihsg~ihsg$coffee, power=2, trype="regressor")
+resettest(ihsg$ihsg~ihsg$cpo, power=2, trype="regressor")
+resettest(ihsg$ihsg~ihsg$rubber, power=2, trype="regressor")
+resettest(ihsg$ihsg~ihsg$gold, power=2, trype="regressor")
+resettest(ihsg$ihsg~ihsg$ex_rate, power=2, trype="regressor")
+resettest(ihsg$ihsg~ihsg$inflasi, power=2, trype="regressor")
+
+#gam modeling
+library(mgcv)
+gam1.ihsg<-gam(ihsg$ihsg~(ihsg$crude_oil+ihsg$coal+ihsg$coffee+ihsg$cpo+ihsg$rubber+ihsg$gold+ihsg$ex_rate+ihsg$inflasi))
+summary(gam1.ihsg)
+y.hat1<- predict(gam1.ihsg)
+
+gam2.ihsg<-gam(ihsg$ihsg~(ihsg$coal+ihsg$coffee+ihsg$rubber+ihsg$ex_rate))
+summary(gam2.ihsg)
+y.hat2<- predict(gam2.ihsg)
+
+par(mfrow=c(1,1))
+plot(ihsg$ihsg)
+points(y.hat2, col="red")
+
+#residual checking
+res.gam2 <- residuals(gam2.ihsg)
+summary(res.gam2)
+par(mfrow=c(2,2))
+hist(res.gam2)
+qqnorm(res.gam2)
+plot(c(1:length(ihsg$ihsg)),res.gam2)
+plot(gam2.ihsg$fitted.values,res.gam2)
